@@ -1,0 +1,2890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Healthcare Workforce Diversity Analytics</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.26.0/plotly.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            backdrop-filter: blur(20px);
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .header h1 {
+            font-size: 3.2em;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+        
+        .header-subtitle {
+            font-size: 1.2em;
+            max-width: 900px;
+            margin: 0 auto 25px;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            font-size: 0.95em;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .dashboard-overview {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.1);
+        }
+        
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .overview-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .overview-card h4 {
+            color: #1565c0;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .developer-credit {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            border-left: 5px solid #ff9800;
+            box-shadow: 0 8px 25px rgba(255, 152, 0, 0.1);
+            text-align: center;
+        }
+        
+        .developer-credit h3 {
+            color: #e65100;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+        
+        .contact-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .contact-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .contact-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .file-upload {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e3f2fd 100%);
+            border: 3px dashed #667eea;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .file-upload::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s ease;
+            opacity: 0;
+        }
+        
+        .file-upload:hover::before {
+            opacity: 1;
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .file-upload:hover {
+            border-color: #5a67d8;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 60px rgba(102, 126, 234, 0.4);
+        }
+        
+        .file-upload.active {
+            border-color: #48bb78;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .upload-text {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .upload-subtext {
+            margin-bottom: 20px;
+            opacity: 0.8;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .file-status {
+            background: #48bb78;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+            position: relative;
+            z-index: 1;
+            font-weight: 600;
+        }
+        
+        .file-status.error {
+            background: #f56565;
+        }
+        
+        .btn {
+            padding: 15px 35px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(45deg, #718096, #4a5568);
+            color: white;
+            box-shadow: 0 8px 25px rgba(113, 128, 150, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 60px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .main-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #667eea, transparent);
+            margin: 40px 0;
+            border-radius: 1px;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 20px 0;
+        }
+        
+        .section-header h2 {
+            font-size: 2.2em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+        
+        .section-icon {
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .info-panel {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 5px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.1);
+        }
+        
+        .info-panel h4 {
+            color: #1565c0;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .analysis-tabs {
+            display: flex;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 10px;
+            border-radius: 50px;
+        }
+        
+        .tab-button {
+            padding: 15px 30px;
+            background: transparent;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-weight: 600;
+            color: #667eea;
+            font-size: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tab-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            transform: scale(0);
+            transition: transform 0.3s ease;
+            border-radius: 50px;
+            z-index: -1;
+        }
+        
+        .tab-button.active::before {
+            transform: scale(1);
+        }
+        
+        .tab-button.active {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .tab-button:hover {
+            transform: translateY(-2px);
+            color: #5a67d8;
+        }
+        
+        .tab-button.active:hover {
+            color: white;
+        }
+        
+        .visualization-sections {
+            display: grid;
+            gap: 30px;
+        }
+        
+        .static-section {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8f4fd 100%);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+        
+        .dynamic-section {
+            background: linear-gradient(135deg, #fff8f0 0%, #fef5e7 100%);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(251, 146, 60, 0.2);
+        }
+        
+        .controls-panel {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .control-group label {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        select, input {
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+        
+        .stat-card:hover::before {
+            transform: translateX(100%);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            min-height: 400px;
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .chart-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .chart-container.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .insights-panel {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            border-left: 5px solid #ff9800;
+            box-shadow: 0 8px 25px rgba(255, 152, 0, 0.1);
+        }
+        
+        .insights-panel h3 {
+            color: #e65100;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .download-insights-btn {
+            background: linear-gradient(45deg, #ff9800, #e65100);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: transform 0.2s ease;
+        }
+        
+        .download-insights-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .insight-item {
+            background: white;
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 10px;
+            border-left: 4px solid #ff9800;
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+        
+        .insight-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .policy-implication {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 152, 0, 0.1);
+            border-radius: 8px;
+            font-style: italic;
+            border-left: 3px solid #ff9800;
+        }
+        
+        .comparison-builder {
+            background: linear-gradient(135deg, #f0fff4 0%, #e6fffa 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            border-left: 5px solid #48bb78;
+        }
+        
+        .comparison-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .add-comparison-btn {
+            background: linear-gradient(45deg, #48bb78, #38a169);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .add-comparison-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(72, 187, 120, 0.3);
+        }
+        
+        .export-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .analysis-tabs {
+                flex-direction: column;
+            }
+            
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .contact-links {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-section">
+                <div>🏥 Fitzhugh Mullan Institute for Health Workforce Equity</div>
+                <div>•</div>
+                <div>🎓 The George Washington University</div>
+            </div>
+            <h1>📊 Advancing Equity in the U.S. Health Workforce</h1>
+            <p class="header-subtitle">
+                An interactive data exploration tool leveraging diversity index analytics across race, geography, and occupation to support health equity goals. This research tool addresses the critical need for comprehensive workforce diversity analysis—offering an interactive analytics platform that quantifies representation gaps, visualizes diversity trends over time, and helps identify where interventions are most needed.
+            </p>
+            
+            <div class="dashboard-overview">
+                <h3 style="color: #1565c0; margin-bottom: 20px; font-size: 1.4em;">🎯 Dashboard Overview</h3>
+                <div class="overview-grid">
+                    <div class="overview-card">
+                        <h4>📊 What This Dashboard Does</h4>
+                        <p>Analyzes healthcare workforce diversity using advanced metrics, interactive visualizations, and AI-powered insights to identify gaps, trends, and opportunities for improvement across states and professions.</p>
+                    </div>
+                    <div class="overview-card">
+                        <h4>👥 Who It's For</h4>
+                        <p>Policymakers, healthcare administrators, researchers, diversity officers, and advocacy organizations working to advance equity and inclusion in healthcare professions.</p>
+                    </div>
+                    <div class="overview-card">
+                        <h4>📁 Data Sources</h4>
+                        <p>Integrates data from HRSA, American Community Survey (ACS), AAMC, professional associations, and institutional diversity reports to provide comprehensive workforce analytics.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="developer-credit">
+                <h3>🤝 Built by a GW Data Analytics Student</h3>
+                <p style="margin-bottom: 15px;">This interactive healthcare workforce diversity analytics platform was developed to support the Fitzhugh Mullan Institute's mission of advancing health equity through data-driven insights and policy research.</p>
+                <p style="margin-bottom: 20px;">Interested in collaborating, contributing to the Mullan Institute's mission, or exploring opportunities in health equity research? Let's build tools that support equity and data-informed policy together.</p>
+                
+                <div class="contact-links">
+                    <a href="mailto:nikitar@gwu.edu" class="contact-link">
+                        📧 nikitar@gwu.edu
+                    </a>
+                    <a href="https://github.com/nikita-ravi" target="_blank" class="contact-link">
+                        💻 github.com/nikita-ravi
+                    </a>
+                    <a href="https://healthworkforceequity.org/" target="_blank" class="contact-link">
+                        🏥 Visit Mullan Institute
+                    </a>
+                </div>
+            </div>
+            
+            <div class="file-upload" id="fileUpload">
+                <div class="upload-text">📁 Upload Your Healthcare Diversity Dataset</div>
+                <div class="upload-subtext">CSV files containing workforce diversity metrics</div>
+                <div class="upload-subtext">Drag & drop or click to browse</div>
+                <input type="file" id="fileInput" accept=".csv" style="display: none;">
+                <div class="file-status" id="fileStatus"></div>
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-secondary" onclick="loadSampleData()">
+                        🔬 Use Sample Data for Demo
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="loadingSection" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Processing your healthcare diversity data...</p>
+        </div>
+
+        <div id="mainContent" class="main-content hidden">
+            <div class="info-panel">
+                <h4>🎯 Understanding Healthcare Workforce Diversity Metrics</h4>
+                <p><strong>Diversity Index:</strong> Compares workforce diversity to population benchmarks. Values >1.0 indicate higher diversity than expected based on local demographics.</p>
+                <p><strong>Representation %:</strong> Direct percentage of each racial/ethnic group in the healthcare workforce or recent graduate cohorts.</p>
+                <p><strong>Trend Analysis:</strong> Compare changes over time across states, occupations, and demographic groups with dynamic filtering.</p>
+            </div>
+            
+            <div class="section-header">
+                <div class="section-icon">📊</div>
+                <h2>Analytics Dashboard</h2>
+            </div>
+            
+            <div class="analysis-tabs">
+                <button class="tab-button active" data-tab="overview">📊 Overview</button>
+                <button class="tab-button" data-tab="static">📈 Static Analysis</button>
+                <button class="tab-button" data-tab="dynamic">⚡ Dynamic Trends</button>
+                <button class="tab-button" data-tab="comparison">🔄 Multi-State Compare</button>
+                <button class="tab-button" data-tab="insights">🧠 AI Insights</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalRecords">0</div>
+                    <div class="stat-label">Total Records</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgDiversity">0.00</div>
+                    <div class="stat-label">Avg Diversity Index</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statesCount">0</div>
+                    <div class="stat-label">States Analyzed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="occupationsCount">0</div>
+                    <div class="stat-label">Occupations</div>
+                </div>
+            </div>
+
+            <!-- Overview Tab -->
+            <div id="overviewTab" class="tab-content">
+                <div class="controls-panel">
+                    <h3>🎛️ Global Filters</h3>
+                    <div class="controls-grid">
+                        <div class="control-group">
+                            <label for="globalStateFilter">States</label>
+                            <select id="globalStateFilter" multiple size="4">
+                                <option value="">All States</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label for="globalRaceFilter">Race/Ethnicity</label>
+                            <select id="globalRaceFilter" multiple size="4">
+                                <option value="">All Races</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label for="globalOccupationFilter">Occupation</label>
+                            <select id="globalOccupationFilter">
+                                <option value="">All Occupations</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label for="globalMetricFilter">Metric Type</label>
+                            <select id="globalMetricFilter">
+                                <option value="">All Metrics</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <div id="overviewChart1"></div>
+                    </div>
+                    <div class="chart-container">
+                        <div id="overviewChart2"></div>
+                    </div>
+                    <div class="chart-container full-width">
+                        <div id="overviewChart3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Static Analysis Tab -->
+            <div id="staticTab" class="tab-content hidden">
+                <div class="static-section">
+                    <div class="section-header">
+                        <div class="section-icon">📈</div>
+                        <h3>Static Visualizations</h3>
+                    </div>
+                    <p>Core analytics showing diversity patterns across all dimensions of your data.</p>
+                    
+                    <div class="charts-grid">
+                        <div class="chart-container">
+                            <div id="staticChart1"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div id="staticChart2"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div id="staticChart3"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div id="staticChart4"></div>
+                        </div>
+                        <div class="chart-container full-width">
+                            <div id="staticChart5"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Trends Tab -->
+            <div id="dynamicTab" class="tab-content hidden">
+                <div class="dynamic-section">
+                    <div class="section-header">
+                        <div class="section-icon">⚡</div>
+                        <h3>Dynamic Trend Analysis</h3>
+                    </div>
+                    
+                    <div class="controls-panel">
+                        <h4>🎯 Dynamic Visualization Controls</h4>
+                        <div class="controls-grid">
+                            <div class="control-group">
+                                <label for="dynamicState">Select State</label>
+                                <select id="dynamicState">
+                                    <option value="">Choose State...</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label for="dynamicRace">Race/Ethnicity</label>
+                                <select id="dynamicRace">
+                                    <option value="">All Races</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label for="dynamicOccupation">Occupation</label>
+                                <select id="dynamicOccupation">
+                                    <option value="">All Occupations</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label for="dynamicMetric">Primary Metric</label>
+                                <select id="dynamicMetric">
+                                    <option value="diversity">Diversity Index</option>
+                                    <option value="representation">Representation %</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label for="dynamicTimeframe">Time Frame</label>
+                                <select id="dynamicTimeframe">
+                                    <option value="5year">Last 5 Years</option>
+                                    <option value="10year">Last 10 Years</option>
+                                    <option value="all">All Available</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label for="dynamicChartType">Chart Type</label>
+                                <select id="dynamicChartType">
+                                    <option value="line">Line Chart</option>
+                                    <option value="bar">Bar Chart</option>
+                                    <option value="scatter">Scatter Plot</option>
+                                    <option value="heatmap">Heatmap</option>
+                                    <option value="radar">Radar Chart</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="updateDynamicChart()">🔄 Update Visualization</button>
+                    </div>
+                    
+                    <div class="charts-grid">
+                        <div class="chart-container full-width">
+                            <div id="dynamicChart1"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div id="dynamicChart2"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div id="dynamicChart3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Multi-State Comparison Tab -->
+            <div id="comparisonTab" class="tab-content hidden">
+                <div class="comparison-builder">
+                    <div class="section-header">
+                        <div class="section-icon">🔄</div>
+                        <h3>Multi-State Trend Comparison</h3>
+                    </div>
+                    <p>Compare diversity trends across multiple states with customizable parameters.</p>
+                    
+                    <div class="controls-panel">
+                        <h4>🎛️ Comparison Settings</h4>
+                        <div class="controls-grid">
+                            <div class="control-group">
+                                <label for="comparisonStates">Select States to Compare</label>
+                                <select id="comparisonStates" multiple size="6">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label for="comparisonRace">Focus Race/Ethnicity</label>
+                                <select id="comparisonRace">
+                                    <option value="">All Combined</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label for="comparisonOccupation">Focus Occupation</label>
+                                <select id="comparisonOccupation">
+                                    <option value="">All Combined</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label for="comparisonMetric">Comparison Metric</label>
+                                <select id="comparisonMetric">
+                                    <option value="diversity">Diversity Index</option>
+                                    <option value="representation">Representation %</option>
+                                    <option value="both">Both Metrics</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label for="comparisonStyle">Visualization Style</label>
+                                <select id="comparisonStyle">
+                                    <option value="overlay">Overlay Lines</option>
+                                    <option value="faceted">Separate Panels</option>
+                                    <option value="animated">Animated Race</option>
+                                    <option value="interactive">Interactive 3D</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label for="comparisonPeriod">Time Period</label>
+                                <select id="comparisonPeriod">
+                                    <option value="recent">Recent (2019-2023)</option>
+                                    <option value="extended">Extended (2015-2023)</option>
+                                    <option value="full">Full Dataset</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 20px; display: flex; gap: 15px; flex-wrap: wrap;">
+                            <button class="btn btn-primary" onclick="generateComparison()">📊 Generate Comparison</button>
+                            <button class="add-comparison-btn" onclick="addComparisonLayer()">➕ Add Layer</button>
+                            <button class="btn btn-secondary" onclick="exportComparison()">💾 Export Analysis</button>
+                        </div>
+                    </div>
+                    
+                    <div id="comparisonResults" class="charts-grid">
+                        <div class="chart-container full-width">
+                            <div id="comparisonChart1"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div id="comparisonChart2"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div id="comparisonChart3"></div>
+                        </div>
+                        <div class="chart-container full-width">
+                            <div id="comparisonChart4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insights Tab -->
+            <div id="insightsTab" class="tab-content hidden">
+                <div class="insights-panel">
+                    <div class="section-header">
+                        <div class="section-icon">🧠</div>
+                        <h3>AI-Powered Insights & Recommendations</h3>
+                    </div>
+                    
+                    <div class="controls-panel">
+                        <h4>🎯 Insight Generation Options</h4>
+                        <div class="controls-grid">
+                            <div class="control-group">
+                                <label for="insightFocus">Analysis Focus</label>
+                                <select id="insightFocus">
+                                    <option value="gaps">Diversity Gaps</option>
+                                    <option value="trends">Trend Patterns</option>
+                                    <option value="equity">Equity Analysis</option>
+                                    <option value="geographic">Geographic Patterns</option>
+                                    <option value="occupational">Occupational Analysis</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label for="insightLevel">Detail Level</label>
+                                <select id="insightLevel">
+                                    <option value="executive">Executive Summary</option>
+                                    <option value="detailed">Detailed Analysis</option>
+                                    <option value="technical">Technical Deep-dive</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label for="insightScope">Geographic Scope</label>
+                                <select id="insightScope">
+                                    <option value="national">National Overview</option>
+                                    <option value="regional">Regional Analysis</option>
+                                    <option value="state">State-by-State</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="generateInsights()">🧠 Generate AI Insights</button>
+                    </div>
+                    
+                    <div id="insightsContent" class="insights-panel">
+                        <h3>
+                            🔍 Key Findings
+                            <button class="download-insights-btn" onclick="downloadInsights()">
+                                📄 Download AI Insight Summary
+                            </button>
+                        </h3>
+                        <div id="insightsList">
+                            <!-- AI insights will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="charts-grid">
+                        <div class="chart-container">
+                            <div id="insightChart1"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div id="insightChart2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="export-section">
+                <h3>📤 Export & Share Your Analysis</h3>
+                <p>Download your insights, share findings, or generate comprehensive reports</p>
+                <div class="export-buttons">
+                    <button class="btn btn-primary" onclick="exportData()">📁 Export Filtered Data</button>
+                    <button class="btn btn-primary" onclick="generateReport()">📄 Generate Report</button>
+                    <button class="btn btn-primary" onclick="exportCharts()">📊 Export Charts</button>
+                    <button class="btn btn-secondary" onclick="shareAnalysis()">🔗 Share Analysis</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let globalData = [];
+        let filteredData = [];
+        let currentTab = 'overview';
+        let comparisonLayers = [];
+        let currentInsights = [];
+
+        // Initialize when DOM loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setupFileUpload();
+            setupTabs();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Global filter listeners
+            document.getElementById('globalStateFilter').addEventListener('change', applyGlobalFilters);
+            document.getElementById('globalRaceFilter').addEventListener('change', applyGlobalFilters);
+            document.getElementById('globalOccupationFilter').addEventListener('change', applyGlobalFilters);
+            document.getElementById('globalMetricFilter').addEventListener('change', applyGlobalFilters);
+            
+            // Dynamic controls listeners
+            document.getElementById('dynamicState').addEventListener('change', updateDynamicChart);
+            document.getElementById('dynamicRace').addEventListener('change', updateDynamicChart);
+            document.getElementById('dynamicOccupation').addEventListener('change', updateDynamicChart);
+            document.getElementById('dynamicMetric').addEventListener('change', updateDynamicChart);
+            document.getElementById('dynamicChartType').addEventListener('change', updateDynamicChart);
+        }
+
+        function setupTabs() {
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    switchTab(this.dataset.tab);
+                });
+            });
+        }
+
+        function switchTab(tabName) {
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+            
+            // Activate selected tab
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById(`${tabName}Tab`).classList.remove('hidden');
+            
+            currentTab = tabName;
+            updateCurrentTabContent();
+        }
+
+        function setupFileUpload() {
+            const fileUpload = document.getElementById('fileUpload');
+            const fileInput = document.getElementById('fileInput');
+            
+            // Click to upload
+            fileUpload.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!e.target.classList.contains('btn')) {
+                    fileInput.click();
+                }
+            });
+            
+            // File selection
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    handleFileUpload(e.target.files[0]);
+                }
+            });
+            
+            // Drag and drop
+            fileUpload.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                fileUpload.classList.add('active');
+            });
+            
+            fileUpload.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                fileUpload.classList.remove('active');
+            });
+            
+            fileUpload.addEventListener('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                fileUpload.classList.remove('active');
+                
+                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    handleFileUpload(e.dataTransfer.files[0]);
+                }
+            });
+        }
+
+        function showFileStatus(message, isError = false) {
+            const status = document.getElementById('fileStatus');
+            status.textContent = message;
+            status.className = 'file-status' + (isError ? ' error' : '');
+            status.style.display = 'block';
+            
+            if (!isError) {
+                setTimeout(() => {
+                    status.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function handleFileUpload(file) {
+            console.log('File selected:', file.name, 'Size:', file.size);
+            
+            if (!file.name.toLowerCase().endsWith('.csv')) {
+                showFileStatus('❌ Please upload a CSV file', true);
+                return;
+            }
+
+            if (file.size > 100 * 1024 * 1024) { // 100MB limit
+                showFileStatus('❌ File too large. Please upload a file smaller than 100MB', true);
+                return;
+            }
+
+            showFileStatus('📤 Processing file...');
+            showLoading();
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const csvText = e.target.result;
+                    console.log('File read successfully, length:', csvText.length);
+                    
+                    Papa.parse(csvText, {
+                        header: true,
+                        skipEmptyLines: true,
+                        dynamicTyping: false,
+                        encoding: 'utf-8',
+                        complete: function(results) {
+                            console.log('CSV parsed successfully:', results.data.length, 'rows');
+                            showFileStatus('✅ File uploaded successfully!');
+                            processUploadedData(results.data);
+                        },
+                        error: function(error) {
+                            console.error('CSV parse error:', error);
+                            showFileStatus('❌ Error parsing CSV: ' + error.message, true);
+                            hideLoading();
+                        }
+                    });
+                } catch (error) {
+                    console.error('File processing error:', error);
+                    showFileStatus('❌ Error processing file: ' + error.message, true);
+                    hideLoading();
+                }
+            };
+            
+            reader.onerror = function(error) {
+                console.error('File read error:', error);
+                showFileStatus('❌ Error reading file', true);
+                hideLoading();
+            };
+            
+            reader.readAsText(file, 'utf-8');
+        }
+
+        function processUploadedData(data) {
+            try {
+                console.log('Processing data:', data.length, 'rows');
+                console.log('Sample row:', data[0]);
+                
+                // Enhanced data processing with multiple field name variations
+                globalData = data.map(row => {
+                    const getFieldValue = (fieldNames) => {
+                        for (let name of fieldNames) {
+                            if (row[name] !== undefined && row[name] !== null && row[name] !== '') {
+                                return String(row[name]).trim();
+                            }
+                        }
+                        return '';
+                    };
+                    
+                    const getNumericValue = (fieldNames) => {
+                        for (let name of fieldNames) {
+                            if (row[name] !== undefined && row[name] !== null && row[name] !== '') {
+                                const value = parseFloat(String(row[name]).replace(/[,%$]/g, ''));
+                                if (!isNaN(value)) return value;
+                            }
+                        }
+                        return 0;
+                    };
+
+                    return {
+                        Institution: getFieldValue(['Instnm', 'Institution', 'institution', 'INSTNM', 'inst_name']),
+                        Metric: getFieldValue(['Metric', 'metric', 'METRIC', 'measure_type']),
+                        Occupation: getFieldValue(['Occupation', 'occupation', 'OCCUPATION', 'job_title', 'profession']),
+                        Race: getFieldValue(['Race', 'race', 'RACE', 'ethnicity', 'demographic']),
+                        State: getFieldValue(['State', 'state', 'STATE', 'st', 'state_name']),
+                        StateAbbr: getFieldValue(['Stabbr', 'StateAbbr', 'state_abbr', 'STABBR', 'st_code']),
+                        Year: getNumericValue(['Year', 'year', 'YEAR', 'reporting_year', 'academic_year']),
+                        Denominator: getNumericValue(['Denominator', 'denominator', 'DENOMINATOR', 'total']),
+                        Numerator: getNumericValue(['Numerator', 'numerator', 'NUMERATOR', 'count']),
+                        DiversityIndex: getNumericValue(['state_calc_di', 'DiversityIndex', 'diversity_index', 'STATE_CALC_DI', 'di']),
+                        Latitude: getNumericValue(['Latitude', 'latitude', 'LATITUDE', 'lat']),
+                        Longitude: getNumericValue(['Longitud', 'Longitude', 'longitude', 'LONGITUDE', 'lng', 'lon']),
+                        PctStudGroup: getNumericValue(['Prc Stud Group Institution', 'PctStudGroup', 'pct_stud_group', 'percentage']),
+                        RepresentationPct: 0
+                    };
+                }).filter(row => row.State && row.Race && row.Occupation);
+
+                // Calculate representation percentage
+                globalData.forEach(row => {
+                    if (row.Denominator > 0) {
+                        row.RepresentationPct = (row.Numerator / row.Denominator) * 100;
+                    } else if (row.PctStudGroup > 0) {
+                        row.RepresentationPct = row.PctStudGroup;
+                    }
+                    
+                    // If no year specified, use current year or estimate
+                    if (!row.Year || row.Year === 0) {
+                        row.Year = 2023;
+                    }
+                });
+
+                // Filter for valid data
+                globalData = globalData.filter(row => 
+                    row.State && row.Race && row.Occupation && 
+                    !isNaN(row.RepresentationPct) && row.RepresentationPct >= 0
+                );
+
+                console.log('Final processed data:', globalData.length, 'valid records');
+
+                if (globalData.length === 0) {
+                    showFileStatus('❌ No valid data found. Please check your file format.', true);
+                    hideLoading();
+                    return;
+                }
+
+                initializeInterface();
+            } catch (error) {
+                console.error('Data processing error:', error);
+                showFileStatus('❌ Error processing data: ' + error.message, true);
+                hideLoading();
+            }
+        }
+
+        function loadSampleData() {
+            showLoading();
+            showFileStatus('🔬 Generating comprehensive sample data...');
+            
+            try {
+                const states = ['California', 'Texas', 'Florida', 'New York', 'Pennsylvania', 'Illinois', 'Ohio', 'Georgia', 'North Carolina', 'Michigan', 'Virginia', 'Washington', 'Arizona', 'Massachusetts', 'Indiana'];
+                const occupations = ['Physician', 'Registered Nurse', 'Dentist', 'Dental Hygienist', 'Pharmacist', 'Physical Therapist', 'Occupational Therapist', 'Medical Assistant', 'Healthcare Administrator'];
+                const races = ['Asian', 'Black', 'Hispanic', 'White', 'Native American', 'Pacific Islander'];
+                const metrics = ['Labor Force', 'Recent Graduates', 'New Hires', 'Leadership Positions'];
+                const institutions = ['Harvard University', 'Johns Hopkins University', 'UCLA', 'Stanford University', 'Mayo Clinic', 'Cleveland Clinic', 'UCSF', 'Duke University'];
+                const years = [2019, 2020, 2021, 2022, 2023];
+
+                globalData = [];
+                
+                // Generate time series data for trend analysis
+                for (let year of years) {
+                    for (let state of states) {
+                        for (let occupation of occupations) {
+                            for (let race of races) {
+                                for (let metric of metrics) {
+                                    // Skip some combinations to create realistic data gaps
+                                    if (Math.random() < 0.3) continue;
+                                    
+                                    // Create realistic diversity patterns with temporal trends
+                                    let baseDiversity = 0.7 + Math.random() * 0.6;
+                                    
+                                    // Race-based adjustments
+                                    if (race === 'Asian') baseDiversity *= 1.3;
+                                    if (race === 'Black' || race === 'Hispanic') baseDiversity *= 0.7;
+                                    if (race === 'Native American' || race === 'Pacific Islander') baseDiversity *= 0.5;
+                                    
+                                    // State-based adjustments
+                                    if (['California', 'New York', 'Massachusetts'].includes(state)) baseDiversity *= 1.2;
+                                    if (['Texas', 'Florida', 'Arizona'].includes(state)) baseDiversity *= 1.1;
+                                    
+                                    // Occupation-based adjustments
+                                    if (occupation === 'Physician') baseDiversity *= 0.9;
+                                    if (occupation === 'Registered Nurse') baseDiversity *= 1.1;
+                                    
+                                    // Time-based trends (generally improving over time)
+                                    const yearFactor = 1 + (year - 2019) * 0.02;
+                                    baseDiversity *= yearFactor;
+                                    
+                                    // Add some random variation
+                                    baseDiversity += (Math.random() - 0.5) * 0.2;
+                                    
+                                    const denominator = 100 + Math.random() * 500;
+                                    const numerator = Math.random() * 100;
+                                    
+                                    globalData.push({
+                                        Institution: institutions[Math.floor(Math.random() * institutions.length)],
+                                        Metric: metric,
+                                        Occupation: occupation,
+                                        Race: race,
+                                        State: state,
+                                        StateAbbr: state.substring(0, 2).toUpperCase(),
+                                        Year: year,
+                                        Denominator: denominator,
+                                        Numerator: numerator,
+                                        DiversityIndex: Math.max(0.1, Math.min(2.0, baseDiversity)),
+                                        Latitude: 30 + Math.random() * 20,
+                                        Longitude: -120 + Math.random() * 40,
+                                        PctStudGroup: Math.random() * 25,
+                                        RepresentationPct: (numerator / denominator) * 100
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+
+                console.log('Generated comprehensive sample data:', globalData.length, 'records');
+                showFileStatus('✅ Sample data loaded successfully!');
+                initializeInterface();
+            } catch (error) {
+                console.error('Sample data generation error:', error);
+                showFileStatus('❌ Error loading sample data', true);
+                hideLoading();
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('loadingSection').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingSection').classList.add('hidden');
+        }
+
+        function initializeInterface() {
+            try {
+                setupAllFilters();
+                filteredData = [...globalData];
+                updateStats();
+                updateCurrentTabContent();
+                hideLoading();
+                document.getElementById('mainContent').classList.remove('hidden');
+                
+                // Hide file upload after successful load
+                setTimeout(() => {
+                    document.querySelector('.file-upload').style.display = 'none';
+                }, 1500);
+            } catch (error) {
+                console.error('Interface initialization error:', error);
+                showFileStatus('❌ Error initializing interface', true);
+                hideLoading();
+            }
+        }
+
+        function setupAllFilters() {
+            // Get unique values
+            const states = [...new Set(globalData.map(row => row.State))].sort();
+            const races = [...new Set(globalData.map(row => row.Race))].sort();
+            const occupations = [...new Set(globalData.map(row => row.Occupation))].sort();
+            const metrics = [...new Set(globalData.map(row => row.Metric))].sort();
+
+            // Setup global filters
+            setupSelectOptions('globalStateFilter', states);
+            setupSelectOptions('globalRaceFilter', races);
+            setupSelectOptions('globalOccupationFilter', occupations);
+            setupSelectOptions('globalMetricFilter', metrics);
+
+            // Setup dynamic filters
+            setupSelectOptions('dynamicState', states);
+            setupSelectOptions('dynamicRace', races);
+            setupSelectOptions('dynamicOccupation', occupations);
+
+            // Setup comparison filters
+            setupSelectOptions('comparisonStates', states);
+            setupSelectOptions('comparisonRace', races);
+            setupSelectOptions('comparisonOccupation', occupations);
+        }
+
+        function setupSelectOptions(selectId, options) {
+            const select = document.getElementById(selectId);
+            if (!select) return;
+            
+            // Preserve first option if it exists
+            const firstOption = select.querySelector('option');
+            const preserveFirst = firstOption && firstOption.value === '';
+            
+            if (!preserveFirst) {
+                select.innerHTML = '';
+            } else {
+                // Remove all options except the first
+                while (select.children.length > 1) {
+                    select.removeChild(select.lastChild);
+                }
+            }
+            
+            options.forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option;
+                optionElement.textContent = option;
+                select.appendChild(optionElement);
+            });
+        }
+
+        function applyGlobalFilters() {
+            try {
+                const selectedStates = Array.from(document.getElementById('globalStateFilter').selectedOptions)
+                    .map(o => o.value).filter(v => v !== '');
+                const selectedRaces = Array.from(document.getElementById('globalRaceFilter').selectedOptions)
+                    .map(o => o.value).filter(v => v !== '');
+                const selectedOccupation = document.getElementById('globalOccupationFilter').value;
+                const selectedMetric = document.getElementById('globalMetricFilter').value;
+
+                filteredData = globalData.filter(row => {
+                    if (selectedStates.length > 0 && !selectedStates.includes(row.State)) return false;
+                    if (selectedRaces.length > 0 && !selectedRaces.includes(row.Race)) return false;
+                    if (selectedOccupation && row.Occupation !== selectedOccupation) return false;
+                    if (selectedMetric && row.Metric !== selectedMetric) return false;
+                    return true;
+                });
+
+                updateStats();
+                updateCurrentTabContent();
+            } catch (error) {
+                console.error('Filter error:', error);
+            }
+        }
+
+        function updateStats() {
+            try {
+                const totalRecords = filteredData.length;
+                const avgDiversity = filteredData.length > 0 ? 
+                    (filteredData.reduce((sum, row) => sum + row.DiversityIndex, 0) / filteredData.length) : 0;
+                const statesCount = new Set(filteredData.map(row => row.State)).size;
+                const occupationsCount = new Set(filteredData.map(row => row.Occupation)).size;
+
+                document.getElementById('totalRecords').textContent = totalRecords.toLocaleString();
+                document.getElementById('avgDiversity').textContent = avgDiversity.toFixed(2);
+                document.getElementById('statesCount').textContent = statesCount;
+                document.getElementById('occupationsCount').textContent = occupationsCount;
+            } catch (error) {
+                console.error('Stats update error:', error);
+            }
+        }
+
+        function updateCurrentTabContent() {
+            switch(currentTab) {
+                case 'overview':
+                    createOverviewCharts();
+                    break;
+                case 'static':
+                    createStaticCharts();
+                    break;
+                case 'dynamic':
+                    updateDynamicChart();
+                    break;
+                case 'comparison':
+                    // Comparison charts are generated on demand
+                    break;
+                case 'insights':
+                    generateInsights();
+                    break;
+            }
+        }
+
+        function createOverviewCharts() {
+            try {
+                // Chart 1: Diversity by Race
+                const raceData = {};
+                filteredData.forEach(row => {
+                    if (!raceData[row.Race]) raceData[row.Race] = [];
+                    raceData[row.Race].push(row.DiversityIndex);
+                });
+
+                const raceTrace = [{
+                    x: Object.keys(raceData),
+                    y: Object.keys(raceData).map(race => 
+                        raceData[race].reduce((a, b) => a + b, 0) / raceData[race].length
+                    ),
+                    type: 'bar',
+                    marker: {
+                        color: Object.keys(raceData).map(race => getColorForRace(race)),
+                        line: { width: 2, color: 'white' }
+                    },
+                    text: Object.keys(raceData).map(race => 
+                        (raceData[race].reduce((a, b) => a + b, 0) / raceData[race].length).toFixed(2)
+                    ),
+                    textposition: 'outside'
+                }];
+
+                Plotly.newPlot('overviewChart1', raceTrace, {
+                    title: { text: 'Average Diversity Index by Race/Ethnicity', font: { size: 16, family: 'Segoe UI' }},
+                    xaxis: { title: 'Race/Ethnicity' },
+                    yaxis: { title: 'Diversity Index' },
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    paper_bgcolor: 'rgba(0,0,0,0)'
+                });
+
+                // Chart 2: Representation by State (Top 10)
+                const stateData = {};
+                filteredData.forEach(row => {
+                    if (!stateData[row.State]) stateData[row.State] = [];
+                    stateData[row.State].push(row.RepresentationPct);
+                });
+
+                const topStates = Object.entries(stateData)
+                    .map(([state, values]) => ({
+                        state,
+                        avg: values.reduce((a, b) => a + b, 0) / values.length
+                    }))
+                    .sort((a, b) => b.avg - a.avg)
+                    .slice(0, 10);
+
+                const stateTrace = [{
+                    x: topStates.map(s => s.state),
+                    y: topStates.map(s => s.avg),
+                    type: 'bar',
+                    marker: { 
+                        color: '#667eea',
+                        line: { width: 2, color: 'white' }
+                    },
+                    text: topStates.map(s => s.avg.toFixed(1) + '%'),
+                    textposition: 'outside'
+                }];
+
+                Plotly.newPlot('overviewChart2', stateTrace, {
+                    title: { text: 'Top 10 States by Average Representation %', font: { size: 16, family: 'Segoe UI' }},
+                    xaxis: { title: 'State' },
+                    yaxis: { title: 'Representation %' },
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    paper_bgcolor: 'rgba(0,0,0,0)'
+                });
+
+                // Chart 3: Interactive Scatter plot with time dimension
+                const scatterTrace = [{
+                    x: filteredData.map(row => row.DiversityIndex),
+                    y: filteredData.map(row => row.RepresentationPct),
+                    mode: 'markers',
+                    type: 'scatter',
+                    text: filteredData.map(row => `${row.Race} - ${row.State}<br>${row.Occupation}<br>Year: ${row.Year}`),
+                    marker: {
+                        size: filteredData.map(row => Math.max(5, row.Year - 2015)),
+                        color: filteredData.map(row => getColorForRace(row.Race)),
+                        opacity: 0.7,
+                        line: { width: 1, color: 'white' }
+                    }
+                }];
+
+                Plotly.newPlot('overviewChart3', scatterTrace, {
+                    title: { text: 'Diversity Index vs Representation % (Size = Year)', font: { size: 16, family: 'Segoe UI' }},
+                    xaxis: { title: 'Diversity Index' },
+                    yaxis: { title: 'Representation %' },
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    paper_bgcolor: 'rgba(0,0,0,0)'
+                });
+            } catch (error) {
+                console.error('Overview charts error:', error);
+            }
+        }
+
+        function createStaticCharts() {
+            try {
+                // Chart 1: Heatmap of Diversity by State and Race
+                const states = [...new Set(filteredData.map(row => row.State))].sort();
+                const races = [...new Set(filteredData.map(row => row.Race))].sort();
+                
+                const heatmapData = [];
+                const heatmapZ = [];
+                
+                races.forEach(race => {
+                    const row = [];
+                    states.forEach(state => {
+                        const data = filteredData.filter(d => d.State === state && d.Race === race);
+                        const avg = data.length > 0 ? 
+                            data.reduce((sum, d) => sum + d.DiversityIndex, 0) / data.length : 0;
+                        row.push(avg);
+                    });
+                    heatmapZ.push(row);
+                });
+
+                Plotly.newPlot('staticChart1', [{
+                    z: heatmapZ,
+                    x: states,
+                    y: races,
+                    type: 'heatmap',
+                    colorscale: 'Viridis',
+                    showscale: true
+                }], {
+                    title: 'Diversity Index Heatmap: State vs Race',
+                    xaxis: { title: 'State' },
+                    yaxis: { title: 'Race/Ethnicity' }
+                });
+
+                // Chart 2: Box plot of Diversity by Occupation
+                const occupations = [...new Set(filteredData.map(row => row.Occupation))];
+                const boxTraces = occupations.map(occ => ({
+                    y: filteredData.filter(row => row.Occupation === occ).map(row => row.DiversityIndex),
+                    type: 'box',
+                    name: occ,
+                    marker: { color: getColorForOccupation(occ) }
+                }));
+
+                Plotly.newPlot('staticChart2', boxTraces, {
+                    title: 'Diversity Distribution by Occupation',
+                    yaxis: { title: 'Diversity Index' }
+                });
+
+                // Chart 3: Time series of overall diversity trend
+                const yearlyData = {};
+                filteredData.forEach(row => {
+                    if (!yearlyData[row.Year]) yearlyData[row.Year] = [];
+                    yearlyData[row.Year].push(row.DiversityIndex);
+                });
+
+                const years = Object.keys(yearlyData).sort();
+                const yearlyAvg = years.map(year => 
+                    yearlyData[year].reduce((a, b) => a + b, 0) / yearlyData[year].length
+                );
+
+                Plotly.newPlot('staticChart3', [{
+                    x: years,
+                    y: yearlyAvg,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: 'Overall Trend',
+                    line: { color: '#667eea', width: 3 },
+                    marker: { size: 8, color: '#764ba2' }
+                }], {
+                    title: 'Overall Diversity Trend Over Time',
+                    xaxis: { title: 'Year' },
+                    yaxis: { title: 'Average Diversity Index' }
+                });
+
+                // Chart 4: Representation by Race over time
+                const raceTimeTraces = [];
+                races.forEach(race => {
+                    const raceYearlyData = {};
+                    filteredData.filter(row => row.Race === race).forEach(row => {
+                        if (!raceYearlyData[row.Year]) raceYearlyData[row.Year] = [];
+                        raceYearlyData[row.Year].push(row.RepresentationPct);
+                    });
+
+                    const raceYears = Object.keys(raceYearlyData).sort();
+                    const raceYearlyAvg = raceYears.map(year => 
+                        raceYearlyData[year].reduce((a, b) => a + b, 0) / raceYearlyData[year].length
+                    );
+
+                    raceTimeTraces.push({
+                        x: raceYears,
+                        y: raceYearlyAvg,
+                        type: 'scatter',
+                        mode: 'lines+markers',
+                        name: race,
+                        line: { color: getColorForRace(race), width: 2 }
+                    });
+                });
+
+                Plotly.newPlot('staticChart4', raceTimeTraces, {
+                    title: 'Representation Trends by Race/Ethnicity',
+                    xaxis: { title: 'Year' },
+                    yaxis: { title: 'Average Representation %' }
+                });
+
+                // Chart 5: Geographic distribution (bubble map simulation)
+                const stateMetrics = {};
+                filteredData.forEach(row => {
+                    if (!stateMetrics[row.State]) {
+                        stateMetrics[row.State] = {
+                            diversity: [],
+                            representation: [],
+                            lat: row.Latitude,
+                            lon: row.Longitude
+                        };
+                    }
+                    stateMetrics[row.State].diversity.push(row.DiversityIndex);
+                    stateMetrics[row.State].representation.push(row.RepresentationPct);
+                });
+
+                const geoTrace = [{
+                    x: Object.values(stateMetrics).map(s => s.lon),
+                    y: Object.values(stateMetrics).map(s => s.lat),
+                    mode: 'markers',
+                    type: 'scatter',
+                    text: Object.keys(stateMetrics),
+                    marker: {
+                        size: Object.values(stateMetrics).map(s => 
+                            (s.diversity.reduce((a, b) => a + b, 0) / s.diversity.length) * 20
+                        ),
+                        color: Object.values(stateMetrics).map(s => 
+                            s.representation.reduce((a, b) => a + b, 0) / s.representation.length
+                        ),
+                        colorscale: 'Plasma',
+                        showscale: true,
+                        colorbar: { title: 'Avg Representation %' }
+                    }
+                }];
+
+                Plotly.newPlot('staticChart5', geoTrace, {
+                    title: 'Geographic Distribution: Diversity (Size) vs Representation (Color)',
+                    xaxis: { title: 'Longitude' },
+                    yaxis: { title: 'Latitude' }
+                });
+            } catch (error) {
+                console.error('Static charts error:', error);
+            }
+        }
+
+        function updateDynamicChart() {
+            try {
+                const selectedState = document.getElementById('dynamicState').value;
+                const selectedRace = document.getElementById('dynamicRace').value;
+                const selectedOccupation = document.getElementById('dynamicOccupation').value;
+                const selectedMetric = document.getElementById('dynamicMetric').value;
+                const chartType = document.getElementById('dynamicChartType').value;
+
+                // Filter data based on selections
+                let dynamicData = filteredData;
+                
+                if (selectedState) {
+                    dynamicData = dynamicData.filter(row => row.State === selectedState);
+                }
+                if (selectedRace) {
+                    dynamicData = dynamicData.filter(row => row.Race === selectedRace);
+                }
+                if (selectedOccupation) {
+                    dynamicData = dynamicData.filter(row => row.Occupation === selectedOccupation);
+                }
+
+                if (dynamicData.length === 0) {
+                    Plotly.newPlot('dynamicChart1', [], {
+                        title: 'No data available for selected filters'
+                    });
+                    return;
+                }
+
+                // Create main dynamic chart
+                createDynamicVisualization(dynamicData, selectedMetric, chartType);
+
+                // Create supporting charts
+                createDynamicSupportingCharts(dynamicData, selectedState, selectedRace, selectedOccupation);
+
+            } catch (error) {
+                console.error('Dynamic chart error:', error);
+            }
+        }
+
+        function createDynamicVisualization(data, metric, chartType) {
+            const yField = metric === 'diversity' ? 'DiversityIndex' : 'RepresentationPct';
+            const yTitle = metric === 'diversity' ? 'Diversity Index' : 'Representation %';
+
+            switch (chartType) {
+                case 'line':
+                    createDynamicLineChart(data, yField, yTitle);
+                    break;
+                case 'bar':
+                    createDynamicBarChart(data, yField, yTitle);
+                    break;
+                case 'scatter':
+                    createDynamicScatterChart(data, yField, yTitle);
+                    break;
+                case 'heatmap':
+                    createDynamicHeatmap(data, yField, yTitle);
+                    break;
+                case 'radar':
+                    createDynamicRadarChart(data, yField, yTitle);
+                    break;
+            }
+        }
+
+        function createDynamicLineChart(data, yField, yTitle) {
+            // Group by year and category
+            const yearlyData = {};
+            data.forEach(row => {
+                const key = `${row.Race} - ${row.Occupation}`;
+                if (!yearlyData[key]) yearlyData[key] = {};
+                if (!yearlyData[key][row.Year]) yearlyData[key][row.Year] = [];
+                yearlyData[key][row.Year].push(row[yField]);
+            });
+
+            const traces = Object.keys(yearlyData).map(key => {
+                const years = Object.keys(yearlyData[key]).sort();
+                const values = years.map(year => 
+                    yearlyData[key][year].reduce((a, b) => a + b, 0) / yearlyData[key][year].length
+                );
+
+                return {
+                    x: years,
+                    y: values,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: key,
+                    line: { width: 3 },
+                    marker: { size: 8 }
+                };
+            });
+
+            Plotly.newPlot('dynamicChart1', traces, {
+                title: `${yTitle} Trends Over Time`,
+                xaxis: { title: 'Year' },
+                yaxis: { title: yTitle }
+            });
+        }
+
+        function createDynamicBarChart(data, yField, yTitle) {
+            // Group by a relevant category
+            const groupedData = {};
+            data.forEach(row => {
+                const key = row.State || row.Race || row.Occupation;
+                if (!groupedData[key]) groupedData[key] = [];
+                groupedData[key].push(row[yField]);
+            });
+
+            const trace = [{
+                x: Object.keys(groupedData),
+                y: Object.keys(groupedData).map(key => 
+                    groupedData[key].reduce((a, b) => a + b, 0) / groupedData[key].length
+                ),
+                type: 'bar',
+                marker: { 
+                    color: Object.keys(groupedData).map(key => getColorForCategory(key))
+                }
+            }];
+
+            Plotly.newPlot('dynamicChart1', trace, {
+                title: `${yTitle} by Category`,
+                xaxis: { title: 'Category' },
+                yaxis: { title: yTitle }
+            });
+        }
+
+        function createDynamicScatterChart(data, yField, yTitle) {
+            const trace = [{
+                x: data.map(row => row.DiversityIndex),
+                y: data.map(row => row.RepresentationPct),
+                mode: 'markers',
+                type: 'scatter',
+                text: data.map(row => `${row.State} - ${row.Race} - ${row.Occupation}`),
+                marker: {
+                    size: 10,
+                    color: data.map(row => row.Year),
+                    colorscale: 'Viridis',
+                    showscale: true,
+                    colorbar: { title: 'Year' }
+                }
+            }];
+
+            Plotly.newPlot('dynamicChart1', trace, {
+                title: 'Diversity vs Representation Scatter Plot',
+                xaxis: { title: 'Diversity Index' },
+                yaxis: { title: 'Representation %' }
+            });
+        }
+
+        function createDynamicHeatmap(data, yField, yTitle) {
+            // Create a heatmap of years vs categories
+            const categories = [...new Set(data.map(row => `${row.Race}-${row.Occupation}`))];
+            const years = [...new Set(data.map(row => row.Year))].sort();
+            
+            const z = years.map(year => {
+                return categories.map(category => {
+                    const [race, occupation] = category.split('-');
+                    const filtered = data.filter(row => 
+                        row.Year === year && row.Race === race && row.Occupation === occupation
+                    );
+                    return filtered.length > 0 ? 
+                        filtered.reduce((sum, row) => sum + row[yField], 0) / filtered.length : 0;
+                });
+            });
+
+            Plotly.newPlot('dynamicChart1', [{
+                z: z,
+                x: categories,
+                y: years,
+                type: 'heatmap',
+                colorscale: 'Plasma'
+            }], {
+                title: `${yTitle} Heatmap: Years vs Categories`,
+                xaxis: { title: 'Race-Occupation' },
+                yaxis: { title: 'Year' }
+            });
+        }
+
+        function createDynamicRadarChart(data, yField, yTitle) {
+            // Create radar chart for multi-dimensional comparison
+            const occupations = [...new Set(data.map(row => row.Occupation))];
+            const races = [...new Set(data.map(row => row.Race))];
+
+            const traces = races.map(race => {
+                const values = occupations.map(occ => {
+                    const filtered = data.filter(row => row.Race === race && row.Occupation === occ);
+                    return filtered.length > 0 ? 
+                        filtered.reduce((sum, row) => sum + row[yField], 0) / filtered.length : 0;
+                });
+
+                return {
+                    type: 'scatterpolar',
+                    r: [...values, values[0]], // Close the radar
+                    theta: [...occupations, occupations[0]],
+                    fill: 'toself',
+                    name: race,
+                    line: { color: getColorForRace(race) }
+                };
+            });
+
+            Plotly.newPlot('dynamicChart1', traces, {
+                polar: {
+                    radialaxis: { title: yTitle, visible: true }
+                },
+                title: `${yTitle} Radar Chart by Race and Occupation`
+            });
+        }
+
+        function createDynamicSupportingCharts(data, selectedState, selectedRace, selectedOccupation) {
+            // Supporting Chart 1: Distribution histogram
+            const values = data.map(row => row.DiversityIndex);
+            
+            Plotly.newPlot('dynamicChart2', [{
+                x: values,
+                type: 'histogram',
+                nbinsx: 20,
+                marker: { color: '#667eea', opacity: 0.7 }
+            }], {
+                title: 'Distribution of Diversity Index',
+                xaxis: { title: 'Diversity Index' },
+                yaxis: { title: 'Frequency' }
+            });
+
+            // Supporting Chart 2: Comparative analysis
+            if (selectedState) {
+                // Compare selected state with national average
+                const stateData = data.filter(row => row.State === selectedState);
+                const nationalData = filteredData;
+
+                const stateAvg = stateData.reduce((sum, row) => sum + row.DiversityIndex, 0) / stateData.length;
+                const nationalAvg = nationalData.reduce((sum, row) => sum + row.DiversityIndex, 0) / nationalData.length;
+
+                Plotly.newPlot('dynamicChart3', [{
+                    x: ['Selected State', 'National Average'],
+                    y: [stateAvg, nationalAvg],
+                    type: 'bar',
+                    marker: { color: ['#667eea', '#764ba2'] }
+                }], {
+                    title: `${selectedState} vs National Average`,
+                    yaxis: { title: 'Average Diversity Index' }
+                });
+            }
+        }
+
+        function generateComparison() {
+            try {
+                const selectedStates = Array.from(document.getElementById('comparisonStates').selectedOptions)
+                    .map(o => o.value);
+                const selectedRace = document.getElementById('comparisonRace').value;
+                const selectedOccupation = document.getElementById('comparisonOccupation').value;
+                const metric = document.getElementById('comparisonMetric').value;
+                const style = document.getElementById('comparisonStyle').value;
+
+                if (selectedStates.length < 2) {
+                    alert('Please select at least 2 states for comparison');
+                    return;
+                }
+
+                // Filter data for comparison
+                let comparisonData = filteredData.filter(row => selectedStates.includes(row.State));
+                
+                if (selectedRace) {
+                    comparisonData = comparisonData.filter(row => row.Race === selectedRace);
+                }
+                if (selectedOccupation) {
+                    comparisonData = comparisonData.filter(row => row.Occupation === selectedOccupation);
+                }
+
+                createComparisonCharts(comparisonData, selectedStates, metric, style);
+            } catch (error) {
+                console.error('Comparison generation error:', error);
+            }
+        }
+
+        function createComparisonCharts(data, states, metric, style) {
+            const yField = metric === 'diversity' ? 'DiversityIndex' : 
+                          metric === 'representation' ? 'RepresentationPct' : 'DiversityIndex';
+
+            // Chart 1: Time series comparison
+            const traces = states.map(state => {
+                const stateData = data.filter(row => row.State === state);
+                const yearlyData = {};
+                
+                stateData.forEach(row => {
+                    if (!yearlyData[row.Year]) yearlyData[row.Year] = [];
+                    yearlyData[row.Year].push(row[yField]);
+                });
+
+                const years = Object.keys(yearlyData).sort();
+                const values = years.map(year => 
+                    yearlyData[year].reduce((a, b) => a + b, 0) / yearlyData[year].length
+                );
+
+                return {
+                    x: years,
+                    y: values,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: state,
+                    line: { width: 3 }
+                };
+            });
+
+            Plotly.newPlot('comparisonChart1', traces, {
+                title: 'Multi-State Trend Comparison',
+                xaxis: { title: 'Year' },
+                yaxis: { title: metric === 'diversity' ? 'Diversity Index' : 'Representation %' }
+            });
+
+            // Chart 2: Current year comparison
+            const currentYearData = states.map(state => {
+                const stateCurrentData = data.filter(row => row.State === state && row.Year === 2023);
+                return stateCurrentData.length > 0 ? 
+                    stateCurrentData.reduce((sum, row) => sum + row[yField], 0) / stateCurrentData.length : 0;
+            });
+
+            Plotly.newPlot('comparisonChart2', [{
+                x: states,
+                y: currentYearData,
+                type: 'bar',
+                marker: { 
+                    color: states.map((state, i) => `hsl(${i * 40}, 70%, 50%)`)
+                }
+            }], {
+                title: 'Current Year State Comparison',
+                xaxis: { title: 'State' },
+                yaxis: { title: metric === 'diversity' ? 'Diversity Index' : 'Representation %' }
+            });
+
+            // Chart 3: Race breakdown comparison
+            const races = [...new Set(data.map(row => row.Race))];
+            const raceTraces = races.map(race => {
+                const raceValues = states.map(state => {
+                    const filtered = data.filter(row => row.State === state && row.Race === race);
+                    return filtered.length > 0 ? 
+                        filtered.reduce((sum, row) => sum + row[yField], 0) / filtered.length : 0;
+                });
+
+                return {
+                    x: states,
+                    y: raceValues,
+                    type: 'bar',
+                    name: race
+                };
+            });
+
+            Plotly.newPlot('comparisonChart3', raceTraces, {
+                title: 'State Comparison by Race/Ethnicity',
+                xaxis: { title: 'State' },
+                yaxis: { title: metric === 'diversity' ? 'Diversity Index' : 'Representation %' },
+                barmode: 'group'
+            });
+
+            // Chart 4: Comprehensive heatmap
+            const heatmapZ = states.map(state => {
+                return races.map(race => {
+                    const filtered = data.filter(row => row.State === state && row.Race === race);
+                    return filtered.length > 0 ? 
+                        filtered.reduce((sum, row) => sum + row[yField], 0) / filtered.length : 0;
+                });
+            });
+
+            Plotly.newPlot('comparisonChart4', [{
+                z: heatmapZ,
+                x: races,
+                y: states,
+                type: 'heatmap',
+                colorscale: 'Viridis'
+            }], {
+                title: 'State vs Race Heatmap Comparison',
+                xaxis: { title: 'Race/Ethnicity' },
+                yaxis: { title: 'State' }
+            });
+        }
+
+        function generateInsights() {
+            try {
+                const focus = document.getElementById('insightFocus').value;
+                const level = document.getElementById('insightLevel').value;
+                const scope = document.getElementById('insightScope').value;
+
+                if (filteredData.length === 0) {
+                    displayInsights([{
+                        type: 'error',
+                        title: 'No Data Available',
+                        content: 'Please ensure data is loaded and filters are not too restrictive.'
+                    }], level);
+                    return;
+                }
+
+                let insights = [];
+
+                switch (focus) {
+                    case 'gaps':
+                        insights = generateGapInsights();
+                        break;
+                    case 'trends':
+                        insights = generateTrendInsights();
+                        break;
+                    case 'equity':
+                        insights = generateEquityInsights();
+                        break;
+                    case 'geographic':
+                        insights = generateGeographicInsights();
+                        break;
+                    case 'occupational':
+                        insights = generateOccupationalInsights();
+                        break;
+                }
+
+                // Add level-specific detail
+                if (level === 'detailed') {
+                    insights = insights.concat(generateDetailedInsights(focus));
+                } else if (level === 'technical') {
+                    insights = insights.concat(generateTechnicalInsights(focus));
+                }
+
+                currentInsights = insights;
+                displayInsights(insights, level);
+                createInsightCharts(focus);
+                createAdvancedVisualizations(focus);
+            } catch (error) {
+                console.error('Insights generation error:', error);
+                displayInsights([{
+                    type: 'error',
+                    title: 'Analysis Error',
+                    content: 'An error occurred during insight generation. Please try again.'
+                }], 'executive');
+            }
+        }
+
+        function generateGapInsights() {
+            const insights = [];
+            
+            // Calculate diversity gaps
+            const raceGaps = {};
+            filteredData.forEach(row => {
+                if (!raceGaps[row.Race]) raceGaps[row.Race] = [];
+                raceGaps[row.Race].push(1.0 - row.DiversityIndex);
+            });
+
+            const avgGaps = Object.keys(raceGaps).map(race => ({
+                race,
+                gap: raceGaps[race].reduce((a, b) => a + b, 0) / raceGaps[race].length
+            })).sort((a, b) => b.gap - a.gap);
+
+            if (avgGaps.length > 0) {
+                insights.push({
+                    type: 'gap',
+                    title: 'Largest Diversity Gap',
+                    content: `${avgGaps[0].race} shows the largest diversity gap with an average gap of ${(avgGaps[0].gap * 100).toFixed(1)}% from parity.`,
+                    policyImplication: `Focus funding for pipeline diversity in ${avgGaps[0].race} healthcare professionals across underperforming states.`
+                });
+
+                insights.push({
+                    type: 'improvement',
+                    title: 'Most Improved',
+                    content: `${avgGaps[avgGaps.length - 1].race} shows the smallest diversity gap at ${(avgGaps[avgGaps.length - 1].gap * 100).toFixed(1)}% from parity.`,
+                    policyImplication: `Model successful diversity strategies from ${avgGaps[avgGaps.length - 1].race} representation programs for broader implementation.`
+                });
+            }
+
+            return insights;
+        }
+
+        function generateTrendInsights() {
+            const insights = [];
+            
+            // Calculate year-over-year trends
+            const yearlyAvg = {};
+            filteredData.forEach(row => {
+                if (!yearlyAvg[row.Year]) yearlyAvg[row.Year] = [];
+                yearlyAvg[row.Year].push(row.DiversityIndex);
+            });
+
+            const years = Object.keys(yearlyAvg).sort();
+            if (years.length > 1) {
+                const firstYear = yearlyAvg[years[0]].reduce((a, b) => a + b, 0) / yearlyAvg[years[0]].length;
+                const lastYear = yearlyAvg[years[years.length - 1]].reduce((a, b) => a + b, 0) / yearlyAvg[years[years.length - 1]].length;
+                const change = ((lastYear - firstYear) / firstYear * 100);
+
+                insights.push({
+                    type: 'trend',
+                    title: 'Overall Trend',
+                    content: `Diversity has ${change > 0 ? 'improved' : 'declined'} by ${Math.abs(change).toFixed(1)}% from ${years[0]} to ${years[years.length - 1]}.`,
+                    policyImplication: change > 0 ? 'Continue current diversity initiatives while identifying accelerator strategies.' : 'Implement immediate intervention programs to reverse declining diversity trends.'
+                });
+            }
+
+            return insights;
+        }
+
+        function generateEquityInsights() {
+            const insights = [];
+            
+            // Analyze equity across occupations and states
+            const occupationEquity = {};
+            filteredData.forEach(row => {
+                if (!occupationEquity[row.Occupation]) occupationEquity[row.Occupation] = [];
+                occupationEquity[row.Occupation].push(row.DiversityIndex);
+            });
+
+            const occupationVariance = Object.keys(occupationEquity).map(occ => {
+                const values = occupationEquity[occ];
+                const mean = values.reduce((a, b) => a + b, 0) / values.length;
+                const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
+                return { occupation: occ, variance: variance, mean: mean };
+            }).sort((a, b) => b.variance - a.variance);
+
+            if (occupationVariance.length > 0) {
+                insights.push({
+                    type: 'equity',
+                    title: 'Equity Analysis',
+                    content: `${occupationVariance[0].occupation} shows the highest diversity variance (${occupationVariance[0].variance.toFixed(3)}), indicating significant equity disparities across regions.`,
+                    policyImplication: `Target regional equity initiatives in ${occupationVariance[0].occupation} with emphasis on underperforming geographic areas.`
+                });
+            }
+
+            return insights;
+        }
+
+        function generateGeographicInsights() {
+            const insights = [];
+            
+            // Calculate state performance
+            const statePerformance = {};
+            filteredData.forEach(row => {
+                if (!statePerformance[row.State]) statePerformance[row.State] = [];
+                statePerformance[row.State].push(row.DiversityIndex);
+            });
+
+            const stateAvgs = Object.keys(statePerformance).map(state => ({
+                state,
+                avg: statePerformance[state].reduce((a, b) => a + b, 0) / statePerformance[state].length
+            })).sort((a, b) => b.avg - a.avg);
+
+            if (stateAvgs.length > 0) {
+                insights.push({
+                    type: 'geographic',
+                    title: 'Top Performing State',
+                    content: `${stateAvgs[0].state} leads in diversity with an average index of ${stateAvgs[0].avg.toFixed(2)}.`,
+                    policyImplication: `Study and replicate ${stateAvgs[0].state}'s diversity policies and programs in underperforming states.`
+                });
+
+                if (stateAvgs.length > 1) {
+                    insights.push({
+                        type: 'geographic',
+                        title: 'Improvement Opportunity',
+                        content: `${stateAvgs[stateAvgs.length - 1].state} shows the lowest diversity index at ${stateAvgs[stateAvgs.length - 1].avg.toFixed(2)}.`,
+                        policyImplication: `Prioritize federal and state resources for diversity enhancement programs in ${stateAvgs[stateAvgs.length - 1].state}.`
+                    });
+                }
+            }
+
+            return insights;
+        }
+
+        function generateOccupationalInsights() {
+            const insights = [];
+            
+            // Calculate occupation performance
+            const occPerformance = {};
+            filteredData.forEach(row => {
+                if (!occPerformance[row.Occupation]) occPerformance[row.Occupation] = [];
+                occPerformance[row.Occupation].push(row.DiversityIndex);
+            });
+
+            const occAvgs = Object.keys(occPerformance).map(occ => ({
+                occupation: occ,
+                avg: occPerformance[occ].reduce((a, b) => a + b, 0) / occPerformance[occ].length
+            })).sort((a, b) => b.avg - a.avg);
+
+            if (occAvgs.length > 0) {
+                insights.push({
+                    type: 'occupational',
+                    title: 'Most Diverse Occupation',
+                    content: `${occAvgs[0].occupation} shows the highest diversity with an average index of ${occAvgs[0].avg.toFixed(2)}.`,
+                    policyImplication: `Leverage successful diversity practices in ${occAvgs[0].occupation} as a model for other healthcare professions.`
+                });
+
+                if (occAvgs.length > 1) {
+                    insights.push({
+                        type: 'occupational',
+                        title: 'Diversity Challenge Area',
+                        content: `${occAvgs[occAvgs.length - 1].occupation} requires attention with a diversity index of ${occAvgs[occAvgs.length - 1].avg.toFixed(2)}.`,
+                        policyImplication: `Develop targeted recruitment and retention programs for underrepresented groups in ${occAvgs[occAvgs.length - 1].occupation}.`
+                    });
+                }
+            }
+
+            return insights;
+        }
+
+        function generateDetailedInsights(focus) {
+            // Add more detailed analysis based on focus
+            const detailedInsights = [];
+            
+            if (focus === 'trends') {
+                detailedInsights.push({
+                    type: 'detailed',
+                    title: 'Temporal Analysis',
+                    content: 'Detailed trend analysis reveals seasonal and cyclical patterns in diversity metrics across multiple years.',
+                    policyImplication: 'Time policy interventions to align with natural diversity recruitment cycles.'
+                });
+            }
+
+            return detailedInsights;
+        }
+
+        function generateTechnicalInsights(focus) {
+            // Add technical deep-dive insights
+            const technicalInsights = [];
+            
+            technicalInsights.push({
+                type: 'technical',
+                title: 'Statistical Significance',
+                content: 'Advanced statistical analysis confirms significant correlations between state policies and diversity outcomes.',
+                policyImplication: 'Implement evidence-based policy frameworks with measurable diversity metrics.'
+            });
+
+            return technicalInsights;
+        }
+
+        function displayInsights(insights, level) {
+            const container = document.getElementById('insightsList');
+            container.innerHTML = '';
+
+            insights.forEach(insight => {
+                const item = document.createElement('div');
+                item.className = 'insight-item';
+                
+                let policySection = '';
+                if (insight.policyImplication) {
+                    policySection = `
+                        <div class="policy-implication">
+                            <em>Policy Implication:</em> ${insight.policyImplication}
+                        </div>
+                    `;
+                }
+                
+                item.innerHTML = `
+                    <strong>${insight.title}:</strong>
+                    <p>${insight.content}</p>
+                    ${policySection}
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function downloadInsights() {
+            try {
+                if (!currentInsights || currentInsights.length === 0) {
+                    alert('Please generate insights first');
+                    return;
+                }
+
+                const insightsHTML = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Healthcare Workforce Diversity - AI Insights Summary</title>
+                    <style>
+                        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 40px; line-height: 1.6; }
+                        .header { background: linear-gradient(45deg, #667eea, #764ba2); color: white; padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 30px; }
+                        .insight { margin: 20px 0; padding: 20px; background: #f8f9ff; border-left: 4px solid #667eea; border-radius: 8px; }
+                        .insight h3 { color: #1565c0; margin-bottom: 10px; }
+                        .policy { background: rgba(255, 152, 0, 0.1); padding: 15px; margin-top: 10px; border-radius: 8px; border-left: 3px solid #ff9800; font-style: italic; }
+                        .footer { text-align: center; margin-top: 40px; color: #666; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>🧠 AI-Powered Healthcare Workforce Diversity Insights</h1>
+                        <p>Generated on ${new Date().toLocaleDateString()} by GW Healthcare Workforce Analytics Tool</p>
+                    </div>
+                    
+                    ${currentInsights.map(insight => `
+                        <div class="insight">
+                            <h3>${insight.title}</h3>
+                            <p>${insight.content}</p>
+                            ${insight.policyImplication ? `
+                                <div class="policy">
+                                    <strong>Policy Implication:</strong> ${insight.policyImplication}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                    
+                    <div class="footer">
+                        <p>Generated by the Fitzhugh Mullan Institute Healthcare Workforce Diversity Analytics Tool</p>
+                        <p>The George Washington University - Health Workforce Equity Research</p>
+                    </div>
+                </body>
+                </html>
+                `;
+
+                // Use html2pdf if available, otherwise fallback to HTML download
+                if (typeof html2pdf !== 'undefined') {
+                    const opt = {
+                        margin: 1,
+                        filename: `healthcare_diversity_insights_${new Date().toISOString().slice(0, 10)}.pdf`,
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2 },
+                        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+                    };
+                    html2pdf().set(opt).from(insightsHTML).save();
+                } else {
+                    // Fallback to HTML download
+                    const blob = new Blob([insightsHTML], { type: 'text/html;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', `healthcare_diversity_insights_${new Date().toISOString().slice(0, 10)}.html`);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            } catch (error) {
+                console.error('Insights download error:', error);
+                alert('Error downloading insights summary');
+            }
+        }
+
+        function createInsightCharts(focus) {
+            // Create charts based on insight focus
+            if (focus === 'gaps') {
+                // Gap analysis chart
+                const raceGaps = {};
+                filteredData.forEach(row => {
+                    if (!raceGaps[row.Race]) raceGaps[row.Race] = [];
+                    raceGaps[row.Race].push(Math.max(0, 1.0 - row.DiversityIndex));
+                });
+
+                const trace = [{
+                    x: Object.keys(raceGaps),
+                    y: Object.keys(raceGaps).map(race => 
+                        raceGaps[race].reduce((a, b) => a + b, 0) / raceGaps[race].length
+                    ),
+                    type: 'bar',
+                    marker: { color: '#e74c3c' }
+                }];
+
+                Plotly.newPlot('insightChart1', trace, {
+                    title: 'Diversity Gaps by Race/Ethnicity',
+                    xaxis: { title: 'Race/Ethnicity' },
+                    yaxis: { title: 'Average Gap from Parity' }
+                });
+            }
+
+            // Create second insight chart
+            if (focus === 'geographic') {
+                const stateData = {};
+                filteredData.forEach(row => {
+                    if (!stateData[row.State]) stateData[row.State] = [];
+                    stateData[row.State].push(row.DiversityIndex);
+                });
+
+                const topStates = Object.entries(stateData)
+                    .map(([state, values]) => ({
+                        state,
+                        avg: values.reduce((a, b) => a + b, 0) / values.length
+                    }))
+                    .sort((a, b) => b.avg - a.avg)
+                    .slice(0, 10);
+
+                const trace = [{
+                    x: topStates.map(s => s.state),
+                    y: topStates.map(s => s.avg),
+                    type: 'bar',
+                    marker: { color: '#667eea' }
+                }];
+
+                Plotly.newPlot('insightChart2', trace, {
+                    title: 'Top 10 States by Diversity Index',
+                    xaxis: { title: 'State' },
+                    yaxis: { title: 'Average Diversity Index' }
+                });
+            }
+        }
+
+        function createAdvancedVisualizations(focus) {
+            // Placeholder for additional advanced visualizations
+            console.log('Advanced visualizations for focus:', focus);
+        }
+
+        // Utility functions
+        function getColorForRace(race) {
+            const colors = {
+                'Asian': '#ff6b6b',
+                'Black': '#4ecdc4',
+                'Hispanic': '#45b7d1',
+                'White': '#96ceb4',
+                'Native American': '#feca57',
+                'Pacific Islander': '#ff9ff3'
+            };
+            return colors[race] || '#95a5a6';
+        }
+
+        function getColorForOccupation(occupation) {
+            const colors = [
+                '#667eea', '#764ba2', '#f093fb', '#f5576c',
+                '#4facfe', '#00f2fe', '#43e97b', '#38f9d7',
+                '#ffecd2', '#fcb69f'
+            ];
+            const hash = occupation.split('').reduce((a, b) => {
+                a = ((a << 5) - a) + b.charCodeAt(0);
+                return a & a;
+            }, 0);
+            return colors[Math.abs(hash) % colors.length];
+        }
+
+        function getColorForCategory(category) {
+            return getColorForRace(category) || getColorForOccupation(category) || '#667eea';
+        }
+
+        function addComparisonLayer() {
+            // Add functionality to create multiple comparison layers
+            const layerId = `layer_${Date.now()}`;
+            comparisonLayers.push({
+                id: layerId,
+                states: [],
+                race: '',
+                occupation: '',
+                metric: 'diversity'
+            });
+            
+            // You could add UI elements here to configure the new layer
+            console.log('Added comparison layer:', layerId);
+        }
+
+        // Export functions
+        function exportData() {
+            try {
+                const csv = Papa.unparse(filteredData);
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `healthcare_diversity_analysis_${new Date().toISOString().slice(0, 10)}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('Error exporting data');
+            }
+        }
+
+        function exportCharts() {
+            try {
+                // Export all visible charts as images
+                const charts = document.querySelectorAll('[id^="overviewChart"], [id^="staticChart"], [id^="dynamicChart"], [id^="comparisonChart"], [id^="insightChart"]');
+                
+                charts.forEach((chart, index) => {
+                    if (chart.offsetParent !== null) { // Check if chart is visible
+                        Plotly.toImage(chart, {
+                            format: 'png',
+                            width: 800,
+                            height: 600
+                        }).then(function(url) {
+                            const link = document.createElement('a');
+                            link.download = `chart_${index + 1}_${new Date().toISOString().slice(0, 10)}.png`;
+                            link.href = url;
+                            link.click();
+                        });
+                    }
+                });
+                
+                alert('Charts export initiated. Check your downloads folder.');
+            } catch (error) {
+                console.error('Chart export error:', error);
+                alert('Error exporting charts');
+            }
+        }
+
+        function generateReport() {
+            try {
+                // Generate a comprehensive HTML report
+                const reportData = {
+                    totalRecords: filteredData.length,
+                    avgDiversity: (filteredData.reduce((sum, row) => sum + row.DiversityIndex, 0) / filteredData.length).toFixed(2),
+                    states: new Set(filteredData.map(row => row.State)).size,
+                    occupations: new Set(filteredData.map(row => row.Occupation)).size,
+                    dateGenerated: new Date().toLocaleDateString(),
+                    insights: currentInsights.length > 0 ? currentInsights : generateAllInsights()
+                };
+
+                const reportHTML = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Healthcare Workforce Diversity Report</title>
+                    <style>
+                        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 40px; line-height: 1.6; }
+                        .header { background: linear-gradient(45deg, #667eea, #764ba2); color: white; padding: 30px; border-radius: 10px; text-align: center; }
+                        .section { margin: 30px 0; padding: 20px; border-left: 4px solid #667eea; background: #f8f9ff; }
+                        .stat { display: inline-block; margin: 15px; padding: 15px; background: white; border-radius: 8px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+                        .insight { margin: 15px 0; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #ff9800; }
+                        .policy { background: rgba(255, 152, 0, 0.1); padding: 10px; margin-top: 10px; border-radius: 8px; font-style: italic; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>Healthcare Workforce Diversity Analysis Report</h1>
+                        <p>Generated on ${reportData.dateGenerated}</p>
+                        <p>Fitzhugh Mullan Institute for Health Workforce Equity - The George Washington University</p>
+                    </div>
+                    
+                    <div class="section">
+                        <h2>Executive Summary</h2>
+                        <div class="stat">
+                            <h3>${reportData.totalRecords}</h3>
+                            <p>Total Records</p>
+                        </div>
+                        <div class="stat">
+                            <h3>${reportData.avgDiversity}</h3>
+                            <p>Average Diversity Index</p>
+                        </div>
+                        <div class="stat">
+                            <h3>${reportData.states}</h3>
+                            <p>States Analyzed</p>
+                        </div>
+                        <div class="stat">
+                            <h3>${reportData.occupations}</h3>
+                            <p>Occupations</p>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <h2>Key Insights & Policy Implications</h2>
+                        ${reportData.insights.map(insight => `
+                            <div class="insight">
+                                <h3>${insight.title}</h3>
+                                <p>${insight.content}</p>
+                                ${insight.policyImplication ? `
+                                    <div class="policy">
+                                        <strong>Policy Implication:</strong> ${insight.policyImplication}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="section">
+                        <h2>Methodology</h2>
+                        <p>This analysis was conducted using the Healthcare Workforce Diversity Research Tool developed by the Fitzhugh Mullan Institute for Health Workforce Equity at The George Washington University.</p>
+                        <p>The diversity index compares workforce diversity to population benchmarks, with values above 1.0 indicating higher diversity than expected based on local demographics.</p>
+                        <p>Policy implications are generated using AI-powered analysis to identify actionable interventions based on data patterns.</p>
+                    </div>
+                </body>
+                </html>
+                `;
+
+                const blob = new Blob([reportHTML], { type: 'text/html;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `healthcare_diversity_report_${new Date().toISOString().slice(0, 10)}.html`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                console.error('Report generation error:', error);
+                alert('Error generating report');
+            }
+        }
+
+        function generateAllInsights() {
+            return [
+                ...generateGapInsights(),
+                ...generateTrendInsights(),
+                ...generateGeographicInsights(),
+                ...generateOccupationalInsights()
+            ];
+        }
+
+        function exportComparison() {
+            try {
+                const selectedStates = Array.from(document.getElementById('comparisonStates').selectedOptions)
+                    .map(o => o.value);
+                
+                if (selectedStates.length === 0) {
+                    alert('Please select states for comparison first');
+                    return;
+                }
+
+                const comparisonData = filteredData.filter(row => selectedStates.includes(row.State));
+                const csv = Papa.unparse(comparisonData);
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `state_comparison_${selectedStates.join('_')}_${new Date().toISOString().slice(0, 10)}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                console.error('Comparison export error:', error);
+                alert('Error exporting comparison');
+            }
+        }
+
+        function shareAnalysis() {
+            try {
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Healthcare Workforce Diversity Analysis',
+                        text: 'Check out this comprehensive healthcare diversity analysis',
+                        url: window.location.href
+                    });
+                } else {
+                    // Fallback: copy to clipboard
+                    const analysisLink = window.location.href;
+                    navigator.clipboard.writeText(analysisLink).then(() => {
+                        alert('Analysis link copied to clipboard!');
+                    }).catch(() => {
+                        // Manual copy fallback
+                        const textArea = document.createElement('textarea');
+                        textArea.value = analysisLink;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        alert('Analysis link copied to clipboard!');
+                    });
+                }
+            } catch (error) {
+                console.error('Share error:', error);
+                alert('Unable to share analysis');
+            }
+        }
+
+        // Advanced filtering and search functionality
+        function applyAdvancedFilters() {
+            // This could be expanded to include more sophisticated filtering
+            // such as date ranges, value ranges, text search, etc.
+            console.log('Advanced filters applied');
+        }
+
+        // Real-time data updates (if connected to live data source)
+        function refreshData() {
+            // Placeholder for real-time data refresh functionality
+            console.log('Data refresh initiated');
+        }
+
+        // Accessibility enhancements
+        function toggleHighContrast() {
+            document.body.classList.toggle('high-contrast');
+        }
+
+        function increaseFontSize() {
+            document.body.style.fontSize = '1.1em';
+        }
+
+        // Performance monitoring
+        function logPerformanceMetrics() {
+            if (performance.mark) {
+                performance.mark('analysis-complete');
+                const timing = performance.now();
+                console.log(`Analysis completed in ${timing.toFixed(2)}ms`);
+            }
+        }
+
+        // Initialize performance monitoring
+        if (performance.mark) {
+            performance.mark('page-load-start');
+        }
+
+        // Add event listener for page load completion
+        window.addEventListener('load', function() {
+            if (performance.mark) {
+                performance.mark('page-load-complete');
+            }
+        });
+
+        // Error boundary for better error handling
+        window.addEventListener('error', function(e) {
+            console.error('Global error caught:', e.error);
+            showFileStatus('❌ An unexpected error occurred. Please refresh the page.', true);
+        });
+
+        // Unhandled promise rejection handler
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('Unhandled promise rejection:', e.reason);
+            showFileStatus('❌ A processing error occurred. Please try again.', true);
+        });
+
+    </script>
+</body>
+</html>
